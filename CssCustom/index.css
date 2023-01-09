@@ -27,16 +27,18 @@
 }
 
 .vjs-picture-in-picture-control {
-    margin-left: 42px !important;
+    margin-left: 56px !important;
+    margin-right: 56px !important;
 }
 
 /* Setting and another button  */
 
 .btn-setting {
     position: absolute !important;
-    transform: translateX(-200%);
+    transform: translateX(-300%);
     right: 0;
     z-index: 1;
+    cursor: pointer;
 }
 
 .btn-setting-icon {
@@ -46,7 +48,7 @@
     width: 200px;
     /* height: 300px; */
     min-height: 30px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     /* opacity: 0.3; */
     position: absolute;
     bottom: 2rem;
@@ -59,7 +61,7 @@
 }
 
 .fill-item{
-    height : 25px;
+    height : 40px;
     padding: 0 5%;
     box-sizing: border-box;
     display: flex;
@@ -85,4 +87,27 @@
 }
 .vjs-volume-panel-horizontal:hover {
     width: 9em;
+}
+
+/* button theater */
+.btn-theater{
+    display: flex !important;
+    /* position: absolute !important; */
+    /* right: 50% !important; */
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    position: absolute !important;
+    transform: translateX(-100%);
+    right: 0;
+    z-index: 1;
+
+}
+.rectangle{
+    /* background: url("../assets/rectangular.png"); */
+    border: 3px solid #fff !important;
+    border-radius: 4px !important;
+    width: 45%;
+    height: 40%;
+    margin: 0;
 }

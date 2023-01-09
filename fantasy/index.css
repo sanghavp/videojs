@@ -112,7 +112,7 @@
   height: 1.3em;
   width: 1.3em;
   /* background: svg-load('icons/nyan-cat.svg', fill=#fff) no-repeat; */
-  background: url("icons/nyan-cat.svg") no-repeat;
+  background: url("./icons/nyan-cat.svg") no-repeat;
   background-color: #fe9a01;
   border: none;
   top: -0.35em;

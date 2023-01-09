@@ -20,17 +20,22 @@ let player = videojs("sea-video", {
 //     volumePanel: {inline: false}
 // },
 });
-//convert time in lib to hour
-let convertTime = function (input) {
-  let pad = function (input) {
-    return input < 10 ? "0" + input : input;
-  };
-  // fps = typeof fps !== "undefined" ? fps : 24;
-  return [
-    pad(Math.floor((input % 3600) / 60)),
-    pad(Math.floor(input % 60)),
-  ].join(":");
-};
+
+//call to func on time update
+player.on("timeupdate", function () {
+  let currentTime = document.querySelector(".vjs-remaining-time");
+  let pictureInPicture = document.querySelector(
+    ".vjs-picture-in-picture-control"
+  );
+  pictureInPicture.setAttribute("title", "Xem dưới dạng thu nhỏ");
+
+  currentTime.innerHTML = `${convertTime(player.currentTime())}/${convertTime(
+    this.duration()
+  )}`;
+});
+
+
+
 
 // Add setting button
 let btnSetting = player.controlBar.addChild("button");
@@ -40,12 +45,12 @@ btnSettingDom.innerHTML = `
   <i class="fas fa-cog btn-setting-icon"></i>
   <div class="toggle-fill">
     <div class="fill-item play-options">
-      <i class="far fa-play-circle" style="font-size=14px; margin-right: 3px"></i>
-      <span>Play back speed</span>
+      <i class="far fa-play-circle" style="font-size=14px; margin-right: 5px;"></i>
+      <span>Playback speed</span>
       <i class="fas fa-angle-right" style="position: absolute; right: 8px"></i>
     </div>
     <div class="fill-item quality-options">
-      <i class="far fa-play-circle" style="font-size=14px; margin-right: 3px"></i>
+      <i class="fas fa-sliders-h" style="font-size=14px; margin-right: 5px;"></i>
       <span>Quality</span>
       <i class="fas fa-angle-right" style="position: absolute; right: 8px"></i>
     </div>
@@ -53,12 +58,16 @@ btnSettingDom.innerHTML = `
   <div class="playback-list vjs-playback-rate list"></div>
   <div class="quality-list list"></div>
   `;
-let toggleFillElm = document.querySelector(".toggle-fill");
-let listElms = document.querySelectorAll(".list");
+
+
+
+// Show hide setting options
+const toggleFillElm = document.querySelector(".toggle-fill");
+const listElms = document.querySelectorAll(".list");
 const playbackRateElm = document.querySelector(".vjs-playback-rate");
 const playbackOptions = document.querySelector(".play-options");
 const qualityOptions = document.querySelector(".quality-options");
-let btnSettingIcon = document.querySelector(".btn-setting-icon");
+const btnSettingIcon = document.querySelector(".btn-setting-icon");
 toggleFillElm.style.visibility = "hidden";
 // Show playback list
 playbackOptions.addEventListener("click", () => {
@@ -74,7 +83,7 @@ btnSettingIcon.addEventListener("click", toggleFill);
 function toggleFill() {
   if (toggleFillElm.style.visibility == "hidden") {
     toggleFillElm.style.visibility = "visible";
-    btnSettingIcon.style.rotate = "30deg";
+    btnSettingIcon.style.rotate = "40deg";
     btnSettingIcon.style.transition = "0.25s";
     playBackList.style.visibility = "hidden";
     qualityList.style.visibility = "hidden";
@@ -84,18 +93,11 @@ function toggleFill() {
     // btnSettingIcon.style.transition = "0.25s"
   }
 }
-//call to func on time update
-player.on("timeupdate", function () {
-  let currentTime = document.querySelector(".vjs-remaining-time");
-  let pictureInPicture = document.querySelector(
-    ".vjs-picture-in-picture-control"
-  );
-  pictureInPicture.setAttribute("title", "Xem dưới dạng thu nhỏ");
 
-  currentTime.innerHTML = `${convertTime(player.currentTime())}/${convertTime(
-    this.duration()
-  )}`;
-});
+
+
+
+
 
 // play back rate settings
 // const playbackMenu = player.controlBar.addChild("PlaybackRateMenuButton");
@@ -105,6 +107,7 @@ const playbackLevels = document.querySelectorAll(
 );
 var plblHTML = "";
 let playbackRatetList = [];
+// generate playbackrate menu options
 function getPlayBackRate() {
   playbackLevels.forEach((playbackLevel, key) => {
     const text = playbackLevel.innerText.split(",")[0];
@@ -116,20 +119,19 @@ function getPlayBackRate() {
     document.querySelector(".playback-list").innerHTML = `<form name="list1">
       ${plblHTML}
     </form>`;
-    // playbackLevel.setAttribute("role", "menuitemcheckbox");
-
     if (playbackLevel.innerText.split(",").length == 2) {
       // playBackList.style.background = "#ccc";
-      document.getElementById(`${key}`).checked = true;
       document.querySelector(`.a${key}a`).style.background = "#ccc";
     }
   });
 }
 getPlayBackRate();
 
+
+
 // On change value of playback rate
-var rad = document.list1.playbackValue;
-var prev = null;
+let rad = document.list1.playbackValue;
+let prev = null;
 for (var i = 0; i < rad.length; i++) {
   rad[i].addEventListener("change", function () {
     prev
@@ -151,30 +153,28 @@ for (var i = 0; i < rad.length; i++) {
         playbackLevel.setAttribute("aria-checked", false);
       } 
     });
-    // console.log(this.value)
   });
 }
 
-// quality settings
 
+// quality menu options inside setting button
 const qualityList = document.querySelector(".quality-list");
 let qualityLevels = player.qualityLevels();
 console.log("qualityLevels.length", qualityLevels.length);
-// Listen to change events for when the player selects a new quality level
-
+// generate first change
 let counter = 0;
+// Listen to change events for when the player selects a new quality level
 qualityLevels.on("change", function () {
   console.log("Quality Level changed!", qualityLevels.selectedIndex);
   // console.log("New level:", qualityLevels[qualityLevels.selectedIndex]);
   qlHTML = "";
-
   if(counter === 0) {
     counter++;
     showEnabledLevels();
   }
 });
 
-// show what levels are enabled
+// generate radio checkbox to select quality levels
 qlHTML = "";
 function showEnabledLevels() {
   for (let i = 0; i < qualityLevels.length; i++) {
@@ -190,10 +190,8 @@ function showEnabledLevels() {
     </form>`;
   }
 }
-// showEnabledLevels();
-// Onchange quality
-// enable quality level by index, set other levels to false
 
+// enable quality level by index, set other levels to false
 const enableQualityLevel = (level) => {
   for (let i = 0; i < qualityLevels.length; i++) {
     let qualityLevel = qualityLevels[i];
@@ -221,18 +219,72 @@ const enableQualityLevel = (level) => {
 //   // showEnabledLevels();
 // });
 
+
 player.on("timeupdate", function () {
   console.log("Playing now: ", player.videoHeight());
 });
 
+
+
+//convert time in lib to hour
+let convertTime = function (input) {
+  let pad = function (input) {
+    return input < 10 ? "0" + input : input;
+  };
+  // fps = typeof fps !== "undefined" ? fps : 24;
+  return [
+    pad(Math.floor((input % 3600) / 60)),
+    pad(Math.floor(input % 60)),
+  ].join(":");
+};
+
+
+
+
+// Add theater mode button
+let btnTheaterMode = player.controlBar.addChild("button");
+let btnTheaterModeDom = btnTheaterMode.el();
+btnTheaterModeDom.classList.add("btn-theater")
+btnTheaterModeDom.setAttribute("title", "Chế độ rạp chiếu phim");
+btnTheaterModeDom.setAttribute("theater_mode", false)
+btnTheaterModeDom.innerHTML = `
+  <div class="rectangle"></div>
+  `;
+// theater mode handle
+const playerDom = document.querySelector(".player");
+const rightDom = document.querySelector(".right");
+btnTheaterModeDom.addEventListener("click", () => {
+  let theaterMode = btnTheaterModeDom.getAttribute("theater_mode")
+  console.log(theaterMode);
+  if(theaterMode == "false"){
+    playerDom.style.width = "100%"
+    playerDom.style.zIndex = 1;
+    player.aspectRatio("21:9");
+    // rightDom.style.marginTop = playerDom.offsetHeight;
+    btnTheaterModeDom.setAttribute("theater_mode", true)
+    btnTheaterModeDom.setAttribute("title", "Chế độ mặc định");
+  }else {
+    playerDom.style.width = "70%"
+    player.aspectRatio("16:9");
+    rightDom.style.marginTop = 0;
+    btnTheaterModeDom.setAttribute("theater_mode", false)
+    btnTheaterModeDom.setAttribute("title", "Chế độ rạp chiếu phim");
+  }
+})
+
+
+
+// On loaded meta data
 player.on("loadedmetadata", function () {
-  // settime
-  let currentTime = document.querySelector(".vjs-remaining-time");
+
+// set attribute for picture in picture
   let pictureInPicture = document.querySelector(
     ".vjs-picture-in-picture-control"
   );
-
   pictureInPicture.setAttribute("title", "Xem dưới dạng thu nhỏ");
+  
+  
+  // On change select quatity video, replace backgound color
   var rad = document.list2.qualityValue;
   var prev = null;
   for (var i = 0; i < rad.length; i++) {
@@ -248,16 +300,15 @@ player.on("loadedmetadata", function () {
       enableQualityLevel(parseInt(this.value))
       qualityList.style.visibility = "hidden";
       qlHTML = "";
-
     });
   }
+
+  // settime as yt time format 
+  let currentTime = document.querySelector(".vjs-remaining-time");
   currentTime.innerHTML = `${convertTime(player.currentTime())}/${convertTime(
     this.duration()
   )}`;
 
-  // // enable buttons
-  // document.getElementById("setMinLevel").disabled = false;
-  // document.getElementById("setMaxLevel").disabled = false;
 
   // track currently rendered segments change
   let tracks = player.textTracks();
