@@ -1,0 +1,88 @@
+.vjs-big-play-button{
+    display: none !important;
+}
+
+.vjs-control-bar{
+    background-color: transparent !important;
+    font-size: 14px;
+}
+.vjs-progress-control{
+    position: absolute !important;
+    width: 100% !important;
+    height: 20px !important;
+    bottom: 40px;
+}
+.vjs-play-progress{
+    background-color: red !important;
+}
+.vjs-play-progress{
+    color: red !important;
+}
+
+.vjs-remaining-time{
+    margin-right: auto !important;
+}
+.vjs-playback-rate:hover .vjs-menu-content{
+    display: block;
+}
+
+.vjs-picture-in-picture-control {
+    margin-left: 42px !important;
+}
+
+/* Setting and another button  */
+
+.btn-setting {
+    position: absolute !important;
+    transform: translateX(-200%);
+    right: 0;
+    z-index: 1;
+}
+
+.btn-setting-icon {
+    font-size: 18px !important;
+}
+.toggle-fill, .list{
+    width: 200px;
+    /* height: 300px; */
+    min-height: 30px;
+    background: rgba(0, 0, 0, 0.3);
+    /* opacity: 0.3; */
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    color: #fff;
+    font-weight: 500;
+    border-radius: 7px;
+    /* display: none; */
+    z-index: 2;
+}
+
+.fill-item{
+    height : 25px;
+    padding: 0 5%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 5px;
+}
+.fill-item:hover{
+    background-color: #ccc;
+}
+
+.playback-list, .quality-list {
+    visibility: hidden;
+    /* opacity: 0; */
+}
+
+.vjs-volume-panel-horizontal:hover .vjs-volume-horizontal{
+    width: 5em !important;
+    opacity: 1;
+}
+.vjs-volume-panel-horizontal:hover {
+    width: 9em;
+}
+.vjs-volume-panel-horizontal:hover {
+    width: 9em;
+}
