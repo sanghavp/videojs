@@ -257,15 +257,19 @@ btnTheaterModeDom.addEventListener("click", () => {
   let theaterMode = btnTheaterModeDom.getAttribute("theater_mode")
   console.log(theaterMode);
   if(theaterMode == "false"){
-    playerDom.style.width = "100%"
+    playerDom.style.width = "100vw"
     playerDom.style.zIndex = 1;
+    playerDom.style.position = "absolute";
+    playerDom.style.marginLeft = "-5em";
     player.aspectRatio("21:9");
-    // rightDom.style.marginTop = playerDom.offsetHeight;
+    rightDom.style.marginTop = playerDom.offsetHeight;
     btnTheaterModeDom.setAttribute("theater_mode", true)
     btnTheaterModeDom.setAttribute("title", "Chế độ mặc định");
   }else {
     playerDom.style.width = "70%"
     player.aspectRatio("16:9");
+    playerDom.style.position = "relative";
+    playerDom.style.marginLeft = "0";
     rightDom.style.marginTop = 0;
     btnTheaterModeDom.setAttribute("theater_mode", false)
     btnTheaterModeDom.setAttribute("title", "Chế độ rạp chiếu phim");
