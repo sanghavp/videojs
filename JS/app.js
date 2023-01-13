@@ -3,7 +3,7 @@ let player = videojs("sea-video", {
     hotkeys: true,
   },
   playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
-  responsive: true,
+  responsive: false,
   aspectRatio: "16:9",
   html5: {
     vhs: {
@@ -16,10 +16,19 @@ let player = videojs("sea-video", {
     nativeVideoTracks: false,
   },
   controls: true,
-//   controlBar: {
-//     volumePanel: {inline: false}
-// },
+  plugins: {
+    vastClient: {
+      adTagUrl: "http://127.0.0.1:5500/assets/vastXml.xml",
+      playAdAlways: true,
+      adCancelTimeout: 5000,
+      adsEnabled: true,
+    },
+  }
+  //   controlBar: {
+  //     volumePanel: {inline: false}
+  // },
 });
+console.log(player)
 
 //call to func on time update
 player.on("timeupdate", function () {
@@ -28,19 +37,17 @@ player.on("timeupdate", function () {
     ".vjs-picture-in-picture-control"
   );
   pictureInPicture.setAttribute("title", "Xem dưới dạng thu nhỏ");
-
+  pictureInPicture.style.marginLeft = pictureInPicture.offsetWidth
+  pictureInPicture.style.marginRight = pictureInPicture.offsetWidth
   currentTime.innerHTML = `${convertTime(player.currentTime())}/${convertTime(
     this.duration()
   )}`;
 });
 
-
-
-
 // Add setting button
 let btnSetting = player.controlBar.addChild("button");
 let btnSettingDom = btnSetting.el();
-btnSettingDom.classList.add("btn-setting")
+btnSettingDom.classList.add("btn-setting");
 btnSettingDom.innerHTML = `
   <i class="fas fa-cog btn-setting-icon"></i>
   <div class="toggle-fill">
@@ -58,8 +65,6 @@ btnSettingDom.innerHTML = `
   <div class="playback-list vjs-playback-rate list"></div>
   <div class="quality-list list"></div>
   `;
-
-
 
 // Show hide setting options
 const toggleFillElm = document.querySelector(".toggle-fill");
@@ -94,11 +99,6 @@ function toggleFill() {
   }
 }
 
-
-
-
-
-
 // play back rate settings
 // const playbackMenu = player.controlBar.addChild("PlaybackRateMenuButton");
 const playBackList = document.querySelector(".playback-list");
@@ -127,8 +127,6 @@ function getPlayBackRate() {
 }
 getPlayBackRate();
 
-
-
 // On change value of playback rate
 let rad = document.list1.playbackValue;
 let prev = null;
@@ -151,11 +149,10 @@ for (var i = 0; i < rad.length; i++) {
       } else {
         playbackLevel.classList.remove("vjs-selected");
         playbackLevel.setAttribute("aria-checked", false);
-      } 
+      }
     });
   });
 }
-
 
 // quality menu options inside setting button
 const qualityList = document.querySelector(".quality-list");
@@ -168,7 +165,7 @@ qualityLevels.on("change", function () {
   console.log("Quality Level changed!", qualityLevels.selectedIndex);
   // console.log("New level:", qualityLevels[qualityLevels.selectedIndex]);
   qlHTML = "";
-  if(counter === 0) {
+  if (counter === 0) {
     counter++;
     showEnabledLevels();
   }
@@ -219,12 +216,9 @@ const enableQualityLevel = (level) => {
 //   // showEnabledLevels();
 // });
 
-
 player.on("timeupdate", function () {
   console.log("Playing now: ", player.videoHeight());
 });
-
-
 
 //convert time in lib to hour
 let convertTime = function (input) {
@@ -238,15 +232,12 @@ let convertTime = function (input) {
   ].join(":");
 };
 
-
-
-
 // Add theater mode button
 let btnTheaterMode = player.controlBar.addChild("button");
 let btnTheaterModeDom = btnTheaterMode.el();
-btnTheaterModeDom.classList.add("btn-theater")
+btnTheaterModeDom.classList.add("btn-theater");
 btnTheaterModeDom.setAttribute("title", "Chế độ rạp chiếu phim");
-btnTheaterModeDom.setAttribute("theater_mode", false)
+btnTheaterModeDom.setAttribute("theater_mode", false);
 btnTheaterModeDom.innerHTML = `
   <div class="rectangle"></div>
   `;
@@ -254,40 +245,36 @@ btnTheaterModeDom.innerHTML = `
 const playerDom = document.querySelector(".player");
 const rightDom = document.querySelector(".right");
 btnTheaterModeDom.addEventListener("click", () => {
-  let theaterMode = btnTheaterModeDom.getAttribute("theater_mode")
+  let theaterMode = btnTheaterModeDom.getAttribute("theater_mode");
   console.log(theaterMode);
-  if(theaterMode == "false"){
-    playerDom.style.width = "100vw"
+  if (theaterMode == "false") {
+    playerDom.style.width = "100vw";
     playerDom.style.zIndex = 1;
     playerDom.style.position = "absolute";
     playerDom.style.marginLeft = "-5em";
     player.aspectRatio("21:9");
     rightDom.style.marginTop = playerDom.offsetHeight;
-    btnTheaterModeDom.setAttribute("theater_mode", true)
+    btnTheaterModeDom.setAttribute("theater_mode", true);
     btnTheaterModeDom.setAttribute("title", "Chế độ mặc định");
-  }else {
-    playerDom.style.width = "70%"
+  } else {
+    playerDom.style.width = "70%";
     player.aspectRatio("16:9");
     playerDom.style.position = "relative";
     playerDom.style.marginLeft = "0";
     rightDom.style.marginTop = 0;
-    btnTheaterModeDom.setAttribute("theater_mode", false)
+    btnTheaterModeDom.setAttribute("theater_mode", false);
     btnTheaterModeDom.setAttribute("title", "Chế độ rạp chiếu phim");
   }
-})
-
-
+});
 
 // On loaded meta data
 player.on("loadedmetadata", function () {
-
-// set attribute for picture in picture
+  // set attribute for picture in picture
   let pictureInPicture = document.querySelector(
     ".vjs-picture-in-picture-control"
   );
   pictureInPicture.setAttribute("title", "Xem dưới dạng thu nhỏ");
-  
-  
+
   // On change select quatity video, replace backgound color
   var rad = document.list2.qualityValue;
   var prev = null;
@@ -301,18 +288,17 @@ player.on("loadedmetadata", function () {
         prev = this;
       }
       document.querySelector(`.b${this.value}b`).style.background = "#ccc";
-      enableQualityLevel(parseInt(this.value))
+      enableQualityLevel(parseInt(this.value));
       qualityList.style.visibility = "hidden";
       qlHTML = "";
     });
   }
 
-  // settime as yt time format 
+  // settime as yt time format
   let currentTime = document.querySelector(".vjs-remaining-time");
   currentTime.innerHTML = `${convertTime(player.currentTime())}/${convertTime(
     this.duration()
   )}`;
-
 
   // track currently rendered segments change
   let tracks = player.textTracks();
@@ -329,7 +315,6 @@ player.on("loadedmetadata", function () {
   if (segmentMetadataTrack) {
     segmentMetadataTrack.on("cuechange", function () {
       let activeCue = segmentMetadataTrack.activeCues[0];
-
       if (activeCue) {
         if (previousPlaylist !== activeCue.value.playlist) {
           console.log(
