@@ -3071,6 +3071,7 @@
   var Wrapper = require('./Wrapper');
   
   function Ad(adJTree) {
+    console.log("adJTree", adJTree);
     if (!(this instanceof Ad)) {
       return new Ad(adJTree);
     }
@@ -3751,7 +3752,7 @@
       }
     }
   };
-  
+  console.log("Vast client prototype: ",VASTClient.prototype);
   module.exports = VASTClient;
   
   },{"../../utils/async":40,"../../utils/consoleLogger":41,"../../utils/http":43,"../../utils/utilityFunctions":47,"../../utils/xml":48,"./Ad":15,"./VASTError":23,"./VASTResponse":25,"./vastUtil":30}],23:[function(require,module,exports){
@@ -7749,7 +7750,7 @@
       }catch(e){
         throw new Error("xml.strToXMLDOC: Error parsing the string: '" + stringContainingXMLSource + "'");
       }
-  
+      console.log(parsedDocument)
       return parsedDocument;
     }
   

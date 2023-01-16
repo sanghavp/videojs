@@ -8,6 +8,7 @@
 
 .vjs-control-bar{
     background-color: transparent !important;
+    background-image: linear-gradient(transparent, black);
     font-size: 14px;
 }
 .vjs-progress-control{
