@@ -18,7 +18,7 @@ let player = videojs("sea-video", {
   controls: true,
   plugins: {
     vastClient: {
-      adTagUrl: "http://127.0.0.1:5500/assets/vastXml.xml",
+      adTagUrl: "../assets/vastXml.xml",
       playAdAlways: true,
       adCancelTimeout: 5000,
       adsEnabled: true,
