@@ -6913,6 +6913,7 @@
    */
   playerUtils.restorePlayerSnapshot = function restorePlayerSnapshot(player, snapshot) {
     var tech = player.el().querySelector('.vjs-tech');
+    console.log("tech", tech)
     var attempts = 20; // the number of remaining attempts to restore the snapshot
   
     if (snapshot.nativePoster) {
