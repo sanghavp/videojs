@@ -18,6 +18,13 @@
      <!-- Common -->
     <link href="/path/to/videojs.vast.vpaid.css" rel="stylesheet">
     <!-- end vast -->
+
+    <!-- IMA CSS -->
+    <link rel="stylesheet" href="./node_modules/video.js/dist/video-js.min.css">
+    <link rel="stylesheet" href="./node_modules/videojs-contrib-ads/dist/videojs.ads.css" />
+    <link rel="stylesheet" href="./path/to/videojs.ima.css" />
+    <!-- End IMA CSS -->
+
     <!-- <link href="sea/index.css" rel="stylesheet" />
     <link href="forest/index.css" rel="stylesheet" />
     <link href="fantasy/index.css" rel="stylesheet" />
@@ -62,23 +69,31 @@
           preload="auto"
           data-setup="{}"
           muted
-          
         >
           <source
             src="https://d2zihajmogu5jn.cloudfront.net/elephantsdream/hls/ed_hd.m3u8" 
-
             type="application/x-mpegURL"
           />
         </video>
         <!-- <button id="setMinLevel" disabled>Set min quality level</button>  
         <button id="setMaxLevel" disabled>Set max quality</button> -->
       </div>
-      <div class="right">Thẻ bên phải</div>
+      <div class="right">
+        Thẻ bên phải :D
+        <!-- <video id="content_video" class="video-js vjs-default-skin"
+            controls preload="auto" width="640"
+        height="360">
+          <source src="//commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              type="video/mp4" ></source>
+        </video> -->
+      </div>
     </div>
 
     
     
-
+    <script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <script src="./path/to/videojsContribAds.js"></script>
+    <script src="./path/to/videojs.ima.js"></script>
     <script src="JS/app.js"></script>
   </body>
 </html>

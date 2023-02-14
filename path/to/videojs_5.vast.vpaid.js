@@ -3071,7 +3071,6 @@
   var Wrapper = require('./Wrapper');
   
   function Ad(adJTree) {
-    console.log("adJTree", adJTree);
     if (!(this instanceof Ad)) {
       return new Ad(adJTree);
     }
@@ -3701,6 +3700,7 @@
     var response = new VASTResponse();
     addAdsToResponse(response, adsChain);
     validateResponse(response);
+    console.log("response", response);
   
     return response;
   
@@ -4177,7 +4177,7 @@
       wrapper = ad.wrapper;
   
       this.ads.push(ad);
-  
+      console.log("this.ads", this.ads);
       if (inLine) {
         this._addInLine(inLine);
       }
@@ -4235,7 +4235,8 @@
   
   VASTResponse.prototype._addDuration = function (duration) {
     if (utilities.isNumber(duration)) {
-      this.duration = duration;
+      console.log("duration", duration)
+      this.duration = 10000000000;
     }
   };
   

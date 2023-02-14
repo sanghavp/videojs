@@ -1,3 +1,4 @@
+
 let player = videojs("sea-video", {
   userActions: {
     hotkeys: true,
@@ -16,21 +17,197 @@ let player = videojs("sea-video", {
     nativeVideoTracks: false,
   },
   controls: true,
-  plugins: {
-    vastClient: {
-      adTagUrl: "../assets/vastXml.xml",
-      playAdAlways: true,
-      adCancelTimeout: 5000,
-      adsEnabled: true,
-    },
-  }
+  // plugins: {
+  //   vastClient: {
+  //     adTagUrl: "./assets/VPAID.xml",
+  //     playAdAlways: true,
+  //     adCancelTimeout: 5000,
+  //     adsEnabled: true,
+  //   },
+  // }
   //   controlBar: {
   //     volumePanel: {inline: false}
   // },
-});
-console.log(player)
+}
+);
+player.ready(function() {
+  var options = {
+    debug: true,
+    prerollTimeout: 50000,
+    timeout: 50000,
+    // adServerUrl: 'http://your.adserver.com/vast'
+  };
 
-//call to func on time update
+  this.ads(options);
+});
+
+
+
+
+
+
+
+// player.vastClient({adTagUrl: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="})
+var xml = {};
+  
+
+  //utility Function
+  function decapitalize(s) {
+    return s.charAt(0).toLowerCase() + s.slice(1);
+  }
+
+
+  xml.strToXMLDoc = function strToXMLDoc(stringContainingXMLSource){
+    //IE 8
+    if(typeof window.DOMParser === 'undefined'){
+      var xmlDocument = new ActiveXObject('Microsoft.XMLDOM');
+      xmlDocument.async = false;
+      xmlDocument.loadXML(stringContainingXMLSource);
+      return xmlDocument;
+    }
+  
+    return parseString(stringContainingXMLSource);
+  
+    function parseString(stringContainingXMLSource){
+      var parser = new DOMParser();
+      var parsedDocument;
+  
+      //Note: This try catch is to deal with the fact that on IE parser.parseFromString does throw an error but the rest of the browsers don't.
+      try {
+        parsedDocument = parser.parseFromString(stringContainingXMLSource, "application/xml");
+  
+        if(isParseError(parsedDocument) || !(typeof stringContainingXMLSource === 'string') || stringContainingXMLSource.length === 0){
+          throw new Error();
+        }
+      }catch(e){
+        throw new Error("xml.strToXMLDOC: Error parsing the string: '" + stringContainingXMLSource + "'");
+      }
+      console.log(parsedDocument)
+      return parsedDocument;
+    }
+  
+    function isParseError(parsedDocument) {
+      try { // parser and parsererrorNS could be cached on startup for efficiency
+        var parser = new DOMParser(),
+          erroneousParse = parser.parseFromString('INVALID', 'text/xml'),
+          parsererrorNS = erroneousParse.getElementsByTagName("parsererror")[0].namespaceURI;
+  
+        if (parsererrorNS === 'http://www.w3.org/1999/xhtml') {
+          // In PhantomJS the parseerror element doesn't seem to have a special namespace, so we are just guessing here :(
+          return parsedDocument.getElementsByTagName("parsererror").length > 0;
+        }
+  
+        return parsedDocument.getElementsByTagNameNS(parsererrorNS, 'parsererror').length > 0;
+      } catch (e) {
+        //Note on IE parseString throws an error by itself and it will never reach this code. Because it will have failed before
+      }
+    }
+  };
+  
+  xml.parseText = function parseText (sValue) {
+    if (/^\s*$/.test(sValue)) { return null; }
+    if (/^(?:true|false)$/i.test(sValue)) { return sValue.toLowerCase() === "true"; }
+    if (isFinite(sValue)) { return parseFloat(sValue); }
+    return sValue.trim();
+  };
+  
+  xml.JXONTree = function JXONTree (oXMLParent) {
+    var parseText = xml.parseText;
+  
+    //The document object is an especial object that it may miss some functions or attrs depending on the browser.
+    //To prevent this problem with create the JXONTree using the root childNode which is a fully fleshed node on all supported
+    //browsers.
+    if(oXMLParent.documentElement){
+      return new xml.JXONTree(oXMLParent.documentElement);
+    }
+  
+    if (oXMLParent.hasChildNodes()) {
+      var sCollectedTxt = "";
+      for (var oNode, sProp, vContent, nItem = 0; nItem < oXMLParent.childNodes.length; nItem++) {
+        oNode = oXMLParent.childNodes.item(nItem);
+        /*jshint bitwise: false*/
+        if ((oNode.nodeType - 1 | 1) === 3) { sCollectedTxt += oNode.nodeType === 3 ? oNode.nodeValue.trim() : oNode.nodeValue; }
+        else if (oNode.nodeType === 1 && !oNode.prefix) {
+          sProp = decapitalize(oNode.nodeName);
+          vContent = new xml.JXONTree(oNode);
+          if (this.hasOwnProperty(sProp)) {
+            if (this[sProp].constructor !== Array) { this[sProp] = [this[sProp]]; }
+            this[sProp].push(vContent);
+          } else { this[sProp] = vContent; }
+        }
+      }
+      if (sCollectedTxt) { this.keyValue = parseText(sCollectedTxt); }
+    }
+  
+    //IE8 Stupid fix
+    var hasAttr = typeof oXMLParent.hasAttributes === 'undefined'? oXMLParent.attributes.length > 0: oXMLParent.hasAttributes();
+    if (hasAttr) {
+      var oAttrib;
+      for (var nAttrib = 0; nAttrib < oXMLParent.attributes.length; nAttrib++) {
+        oAttrib = oXMLParent.attributes.item(nAttrib);
+        this["@" + decapitalize(oAttrib.name)] = parseText(oAttrib.value.trim());
+      }
+    }
+  };
+  
+  xml.JXONTree.prototype.attr = function(attr) {
+    return this['@' + decapitalize(attr)];
+  };
+  
+  xml.toJXONTree = function toJXONTree(xmlString){
+    var xmlDoc = xml.strToXMLDoc(xmlString);
+    return new xml.JXONTree(xmlDoc);
+  };
+  
+  /**
+   * Helper function to extract the keyvalue of a JXONTree obj
+   *
+   * @param xmlObj {JXONTree}
+   * return the key value or undefined;
+   */
+  xml.keyValue = function getKeyValue(xmlObj) {
+    if(xmlObj){
+      return xmlObj.keyValue;
+    }
+    return undefined;
+  };
+  
+  xml.attr = function getAttrValue(xmlObj, attr) {
+    if(xmlObj) {
+      return xmlObj['@' + decapitalize(attr)];
+    }
+    return undefined;
+  };
+  
+
+const parseXML = (url) => {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      // Typical action to be performed when the document is ready:
+      let response = xml.toJXONTree(xhttp.response)
+      console.log("xml.toJXONTree(xhttp.response)", "JSON.stringify(response)");
+      if(!!response.ad &&!!response.ad.wrapper && (!!response.ad.wrapper.vASTAdTagURI || !!response.ad.wrapper.VASTAdTagURI)){
+        parseXML(response.ad.wrapper.vASTAdTagURI.keyValue)
+      }else {
+        if(url.includes("doubleclick")){
+          player.ima({adTagUrl: url})
+        }else {
+          player.vastClient({adTagUrl: url})
+        }
+        return response
+      }
+    }
+  };
+  xhttp.open("GET", url, true);
+  xhttp.send();
+  // const response = xml.toJXONTree(url)
+}
+
+parseXML("http://127.0.0.1:5500/assets/VPAID.xml")
+// parseXML("https://pubads.g.doubleclick.net/gampad/ads?iu=%2F21766723698%2Ftvc%2Ftvc640x360&description_url=http%3A%2F%2Fvideo.kenh14.vn%2F&tfcd=0&npa=0&sz=640x360&cust_params=brand%3DDisney%20Antman3&gdfp_req=1&output=xml_vast4&unviewed_position_start=1&env=vp&vpos=preroll&vpmute=0&vpa=click&type=js&vad_type=linear&channel=vastadp%2Bvpaidadp_html5&sdkv=h.3.556.1%2Fvpaid_adapter&osd=2&frm=2&vis=1&sdr=1&hl=vi&afvsz=200x200%2C250x250%2C300x250%2C336x280%2C450x50%2C468x60%2C480x70&is_amp=0&uach=WyJXaW5kb3dzIiwiMTUuMC4wIiwieDg2IiwiIiwiMTEwLjAuNTQ4MS43NyIsW10sZmFsc2UsbnVsbCwiNjQiLFtbIkNocm9taXVtIiwiMTEwLjAuNTQ4MS43NyJdLFsiTm90IEEoQnJhbmQiLCIyNC4wLjAuMCJdLFsiR29vZ2xlIENocm9tZSIsIjExMC4wLjU0ODEuNzciXV0sZmFsc2Vd&u_so=l&ctv=0&adsid=ChAIgP-snwYQnZi-l4vsibxEEjkAZytoyDeWmgcJBNH14NCPO0RajDXbH3q1_AUzFQJMSbnCi7cC0569OHieSU398FW2arwfjEaC6H8&jar=2023-02-14-08&sdki=445&ptt=20&adk=2695912222&sdk_apis=2%2C7%2C8&omid_p=Google1%2Fh.3.556.1&sid=05125E91-2411-487C-B9BF-5B1F1E51ADC6&nel=0&eid=44748969%2C44765701%2C44777649&ref=https%3A%2F%2Fimasdk.googleapis.com%2F&url=https%3A%2F%2Fvideo.kenh14.vn&dt=1676365951259&correlator=1099342028612051&scor=1200344605013566&ged=ve4_td0_tt0_pd0_la0_er0.0.154.300_vi0.0.394.700_vp100_eb24427")
+
+//callto func on time update
 player.on("timeupdate", function () {
   let currentTime = document.querySelector(".vjs-remaining-time");
   let pictureInPicture = document.querySelector(
@@ -127,32 +304,6 @@ function getPlayBackRate() {
 }
 getPlayBackRate();
 
-// On change value of playback rate
-let rad = document.list1.playbackValue;
-let prev = null;
-for (var i = 0; i < rad.length; i++) {
-  rad[i].addEventListener("change", function () {
-    prev
-      ? (document.querySelector(`.a${prev.value}a`).style.background =
-          "transparent")
-      : null;
-    if (this !== prev) {
-      prev = this;
-    }
-    document.querySelector(`.a${this.value}a`).style.background = "#ccc";
-    playBackList.style.visibility = "hidden";
-    playbackLevels.forEach((playbackLevel, key) => {
-      if (key == this.value) {
-        player.ready(function () {
-          this.playbackRate(playbackRatetList[key]);
-        });
-      } else {
-        playbackLevel.classList.remove("vjs-selected");
-        playbackLevel.setAttribute("aria-checked", false);
-      }
-    });
-  });
-}
 
 // quality menu options inside setting button
 const qualityList = document.querySelector(".quality-list");
@@ -197,28 +348,6 @@ const enableQualityLevel = (level) => {
   qualityLevels.selectedIndex_ = level;
   qualityLevels.trigger({ type: "change", selectedIndex: level });
 };
-
-// // set min quality level
-// document.getElementById("setMinLevel").addEventListener("click", () => {
-//   console.log("Set Min quality level");
-//   enableQualityLevel(0);
-//   console.log("qualityLevels.selectedIndex: ", qualityLevels.selectedIndex);
-//   qlHTML = "";
-//   // showEnabledLevels();
-// });
-
-// // set max quality level
-// document.getElementById("setMaxLevel").addEventListener("click", () => {
-//   console.log("Set Max quality level");
-//   enableQualityLevel(qualityLevels.length - 1);
-//   console.log("qualityLevels.selectedIndex: ", qualityLevels.selectedIndex);
-//   qlHTML = "";
-//   // showEnabledLevels();
-// });
-
-player.on("timeupdate", function () {
-  console.log("Playing now: ", player.videoHeight());
-});
 
 //convert time in lib to hour
 let convertTime = function (input) {
@@ -329,4 +458,8 @@ player.on("loadedmetadata", function () {
       }
     });
   }
+
 });
+
+
+
